@@ -7,6 +7,8 @@
       - tar
       - ca-certificates
       - curl
+      - libseccomp2
+      - util-linux
       - apt-transport-https=2.4.11
       - runc=1.1.7-0ubuntu1~22.04.2
       - containerd=1.7.2-0ubuntu1~22.04.1
