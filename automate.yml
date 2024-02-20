@@ -75,7 +75,7 @@
     - debug:
         msg: "{{ cdconfig.stdout }}"
 
-    - name: "Register if system is using cgroupv2"
+    - name: "Register if system is using cgroupv2."
       shell:
         cmd: stat -fc %T /sys/fs/cgroup/
       register: cgroupv2
@@ -83,9 +83,13 @@
     - debug:
         msg: "{{ cgroupv2.stdout }}"
 
-    - name: "Find and replace cgroup driver"
+    - name: "Find and replace cgroup driver."
       when: cgroupv2.stdout == "cgroup2fs"
       replace:
         path: /etc/containerd/config.toml
         regexp: 'SystemdCgroup = false'
         replace: 'SystemdCgroup = true'
+
+    - name: "Restart containerd."
+      shell:
+        cmd: systemctl restart containerd
