@@ -6,28 +6,28 @@
   become: true
   tasks:
 
-    #- name: Print all available facts.
+    #- name: "Print all available facts."
     # debug:
     #   var: ansible_facts
 
-    - name: Fail when not 22.04
+    - name: "Fail when not 22.04."
       fail:
         msg: Wrong OS version.
       when: ansible_facts['lsb']['release'] != "22.04"
 
     - include_tasks: tasks/packages.yaml
 
-    - name: "Load br_netfilter kernel module"
+    - name: "Load br_netfilter kernel module."
       modprobe:
         name: br_netfilter
         state: present
 
-    - name: "Load overlay kernel module"
+    - name: "Load overlay kernel module."
       modprobe:
         name: overlay
         state: present
 
-    - name: "Check modules"
+    - name: "Check modules."
       shell:
         cmd: lsmod | grep br_netfilter && lsmod | grep overlay
       register: chkmod
@@ -35,29 +35,42 @@
     - debug:
         msg: "{{ chkmod.stdout }}"
 
-    - name: "Set bridge-nf-call-iptables"
+    - name: "Set bridge-nf-call-iptables."
       sysctl:
         name: net.bridge.bridge-nf-call-iptables
         value: 1
 
-    - name: "Set IPv6 bridge-nf-call-ip6tables"
+    - name: "Set IPv6 bridge-nf-call-ip6tables."
       sysctl:
         name: net.bridge.bridge-nf-call-ip6tables
         value: 1
 
-    - name: "Set ip_forward"
+    - name: "Set ip_forward."
       sysctl:
         name: net.ipv4.ip_forward
         value: 1
 
-    - name: "Apply sysctl params without reboot"
+    - name: "Apply sysctl params without reboot."
       shell:
         cmd: sysctl --system
 
-    - name: "Check sysctl params"
+    - name: "Check sysctl params."
       shell:
         cmd: sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
       register: sysctl
 
     - debug:
         msg: "{{ sysctl.stdout }}"
+
+    - name: "Create a directory for containerd config."
+      file: path=/etc/containerd state=directory
+
+    - name: "Create containerd config for k8s."
+      shell:
+        cmd: |
+          containerd config default > /etc/containerd/config.toml
+          ls -l /etc/containerd
+      register: cdconfig
+
+    - debug:
+        msg: "{{ cdconfig.stdout }}"
