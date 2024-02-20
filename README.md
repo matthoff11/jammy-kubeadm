@@ -4,3 +4,4 @@
 # reboot
 
 #./init.sh
+a
