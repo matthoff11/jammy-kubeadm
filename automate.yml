@@ -5,6 +5,7 @@
   hosts: localhost
   become: true
   tasks:
+    - include_tasks: tasks/packages.yaml
 
     #- name: Print all available facts.
     # debug:
